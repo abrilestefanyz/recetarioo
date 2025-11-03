@@ -1,5 +1,5 @@
 // src/screens/Favorites/FavoritesScreen.tsx
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,35 +10,20 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Recipe {
-  id: string;
-  title: string;
-  image: string;
-  rating: number;
-  prepTime: string;
-}
+import { useFavorites } from '../../context/FavoritesContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 export function FavoritesScreen({ navigation }: any) {
-  const [favorites, setFavorites] = useState<Recipe[]>([
-    {
-      id: '4',
-      title: 'Tacos al Pastor',
-      image: 'https://via.placeholder.com/300x200/F38181/ffffff?text=Tacos',
-      rating: 5.0,
-      prepTime: '30 min',
-    },
-    {
-      id: '6',
-      title: 'Pizza Margherita',
-      image: 'https://via.placeholder.com/300x200/FECA57/ffffff?text=Pizza',
-      rating: 4.9,
-      prepTime: '45 min',
-    },
-  ]);
+  const { favorites, removeFavorite, loadFavorites } = useFavorites();
 
-  const removeFavorite = (id: string) => {
-    setFavorites(favorites.filter((fav) => fav.id !== id));
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFavorites();
+    }, [])
+  );
+
+  const handleRemoveFavorite = async (recipeId: string) => {
+    await removeFavorite(recipeId);
   };
 
   return (
@@ -58,7 +43,7 @@ export function FavoritesScreen({ navigation }: any) {
               No tienes favoritos aún
             </Text>
             <Text style={styles.emptyStateSubtext}>
-              Guarda tus recetas favoritas tocando el corazón
+              Guarda tus recetas favoritas tocando el corazón ❤️
             </Text>
           </View>
         ) : (
@@ -76,20 +61,20 @@ export function FavoritesScreen({ navigation }: any) {
                       {recipe.title}
                     </Text>
                     <View style={styles.recipeMetadata}>
-                      <View style={styles.ratingContainer}>
-                        <Ionicons name="star" size={14} color="#FFD700" />
-                        <Text style={styles.ratingText}>{recipe.rating}</Text>
+                      <View style={styles.categoryContainer}>
+                        <Ionicons name="restaurant-outline" size={14} color="#0891b2" />
+                        <Text style={styles.categoryText}>{recipe.category}</Text>
                       </View>
-                      <View style={styles.timeContainer}>
-                        <Ionicons name="time-outline" size={14} color="#6C757D" />
-                        <Text style={styles.timeText}>{recipe.prepTime}</Text>
+                      <View style={styles.areaContainer}>
+                        <Ionicons name="globe-outline" size={14} color="#6C757D" />
+                        <Text style={styles.areaText}>{recipe.area}</Text>
                       </View>
                     </View>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.favoriteButton}
-                  onPress={() => removeFavorite(recipe.id)}
+                  onPress={() => handleRemoveFavorite(recipe.id)}
                 >
                   <Ionicons name="heart" size={24} color="#FF6B6B" />
                 </TouchableOpacity>
@@ -176,23 +161,24 @@ const styles = StyleSheet.create({
   recipeMetadata: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 16,
   },
-  ratingContainer: {
+  categoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    gap: 4,
   },
-  ratingText: {
-    marginLeft: 4,
+  categoryText: {
     fontSize: 14,
-    color: '#6C757D',
+    color: '#0891b2',
+    fontWeight: '500',
   },
-  timeContainer: {
+  areaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
-  timeText: {
-    marginLeft: 4,
+  areaText: {
     fontSize: 14,
     color: '#6C757D',
   },

@@ -2,13 +2,16 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
+import { FavoritesProvider } from './src/context/FavoritesContext';
 import { BottomTabNavigation } from './src/navigations/BottomTabNavigation';
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <BottomTabNavigation />
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <FavoritesProvider>
+      <NavigationContainer>
+        <BottomTabNavigation />
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </FavoritesProvider>
   );
 }

@@ -1,5 +1,5 @@
 // src/screens/Home/HomeScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,57 +8,30 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Recipe {
-  id: string;
-  title: string;
-  image: string;
-  isFavorite: boolean;
-  rating: number;
-}
+import { getRandomRecipes, Recipe } from '../../services/edamam.service';
+import { useFavorites } from '../../context/FavoritesContext';
 
 export function HomeScreen({ navigation }: any) {
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    {
-      id: '1',
-      title: 'Ensalada Fatush Libanesa',
-      image: 'https://via.placeholder.com/300x200/FF6B6B/ffffff?text=Fatush',
-      isFavorite: false,
-      rating: 4.5,
-    },
-    {
-      id: '2',
-      title: 'Ensalada Tailandesa de Maní',
-      image: 'https://via.placeholder.com/300x200/4ECDC4/ffffff?text=Thai+Salad',
-      isFavorite: false,
-      rating: 4.8,
-    },
-    {
-      id: '3',
-      title: 'Pasta Carbonara',
-      image: 'https://via.placeholder.com/300x200/95E1D3/ffffff?text=Carbonara',
-      isFavorite: false,
-      rating: 4.7,
-    },
-    {
-      id: '4',
-      title: 'Tacos al Pastor',
-      image: 'https://via.placeholder.com/300x200/F38181/ffffff?text=Tacos',
-      isFavorite: true,
-      rating: 5.0,
-    },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
-  const toggleFavorite = (id: string) => {
-    setRecipes(
-      recipes.map((recipe) =>
-        recipe.id === id
-          ? { ...recipe, isFavorite: !recipe.isFavorite }
-          : recipe
-      )
-    );
+  useEffect(() => {
+    loadRecipes();
+  }, []);
+
+  const loadRecipes = async () => {
+    setLoading(true);
+    const data = await getRandomRecipes(10);
+    setRecipes(data);
+    setLoading(false);
+  };
+
+  const handleToggleFavorite = async (recipe: Recipe) => {
+    await toggleFavorite(recipe);
   };
 
   const renderRecipeCard = (recipe: Recipe) => (
@@ -72,21 +45,21 @@ export function HomeScreen({ navigation }: any) {
       <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
       <TouchableOpacity
         style={styles.favoriteButton}
-        onPress={() => toggleFavorite(recipe.id)}
+        onPress={() => handleToggleFavorite(recipe)}
       >
         <Ionicons
-          name={recipe.isFavorite ? 'heart' : 'heart-outline'}
+          name={isFavorite(recipe.id) ? 'heart' : 'heart-outline'}
           size={24}
-          color={recipe.isFavorite ? '#FF6B6B' : '#fff'}
+          color={isFavorite(recipe.id) ? '#FF6B6B' : '#fff'}
         />
       </TouchableOpacity>
       <View style={styles.recipeInfo}>
         <Text style={styles.recipeTitle} numberOfLines={2}>
           {recipe.title}
         </Text>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={16} color="#FFD700" />
-          <Text style={styles.ratingText}>{recipe.rating}</Text>
+        <View style={styles.categoryContainer}>
+          <Text style={styles.categoryText}>{recipe.category}</Text>
+          <Text style={styles.areaText}>{recipe.area}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -96,13 +69,23 @@ export function HomeScreen({ navigation }: any) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Recetas</Text>
+        <TouchableOpacity onPress={loadRecipes}>
+          <Ionicons name="refresh" size={24} color="#0891b2" />
+        </TouchableOpacity>
       </View>
       
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.recipesGrid}>
-          {recipes.map((recipe) => renderRecipeCard(recipe))}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0891b2" />
+          <Text style={styles.loadingText}>Cargando recetas...</Text>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.recipesGrid}>
+            {recipes.map((recipe) => renderRecipeCard(recipe))}
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -113,6 +96,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -122,6 +108,16 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#212529',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#6C757D',
   },
   scrollView: {
     flex: 1,
@@ -167,13 +163,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     minHeight: 40,
   },
-  ratingContainer: {
+  categoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  ratingText: {
-    marginLeft: 4,
-    fontSize: 14,
+  categoryText: {
+    fontSize: 12,
+    color: '#0891b2',
+    fontWeight: '500',
+  },
+  areaText: {
+    fontSize: 12,
     color: '#6C757D',
   },
 });

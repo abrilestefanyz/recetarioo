@@ -9,55 +9,38 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Recipe {
-  id: string;
-  title: string;
-  image: string;
-  category: string;
-}
+import { searchRecipesByName, Recipe } from '../../services/edamam.service';
 
 export function SearchScreen({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [recipes] = useState<Recipe[]>([
-    {
-      id: '1',
-      title: 'Ensalada Fatush Libanesa',
-      image: 'https://via.placeholder.com/80x80/FF6B6B/ffffff?text=F',
-      category: 'Ensaladas',
-    },
-    {
-      id: '2',
-      title: 'Ensalada Tailandesa de Maní',
-      image: 'https://via.placeholder.com/80x80/4ECDC4/ffffff?text=T',
-      category: 'Ensaladas',
-    },
-    {
-      id: '3',
-      title: 'Pasta Carbonara',
-      image: 'https://via.placeholder.com/80x80/95E1D3/ffffff?text=C',
-      category: 'Pasta',
-    },
-    {
-      id: '4',
-      title: 'Tacos al Pastor',
-      image: 'https://via.placeholder.com/80x80/F38181/ffffff?text=T',
-      category: 'Mexicana',
-    },
-    {
-      id: '5',
-      title: 'Sushi Rolls',
-      image: 'https://via.placeholder.com/80x80/AA96DA/ffffff?text=S',
-      category: 'Japonesa',
-    },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    recipe.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    
+    if (query.length < 2) {
+      setRecipes([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setLoading(true);
+    setHasSearched(true);
+    const results = await searchRecipesByName(query);
+    setRecipes(results);
+    setLoading(false);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setRecipes([]);
+    setHasSearched(false);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,28 +54,33 @@ export function SearchScreen({ navigation }: any) {
           style={styles.searchInput}
           placeholder="Buscar recetas..."
           value={searchQuery}
-          onChangeText={setSearchQuery}
+          onChangeText={handleSearch}
           placeholderTextColor="#ADB5BD"
         />
         {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
+          <TouchableOpacity onPress={clearSearch}>
             <Ionicons name="close-circle" size={20} color="#6C757D" />
           </TouchableOpacity>
         )}
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {searchQuery.length === 0 ? (
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0891b2" />
+            <Text style={styles.loadingText}>Buscando recetas...</Text>
+          </View>
+        ) : !hasSearched ? (
           <View style={styles.emptyState}>
             <Ionicons name="search" size={64} color="#DEE2E6" />
             <Text style={styles.emptyStateText}>
               Busca tu receta favorita
             </Text>
             <Text style={styles.emptyStateSubtext}>
-              Encuentra entre cientos de recetas deliciosas
+              Prueba: pollo, pasta, tacos, arroz...
             </Text>
           </View>
-        ) : filteredRecipes.length === 0 ? (
+        ) : recipes.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="sad-outline" size={64} color="#DEE2E6" />
             <Text style={styles.emptyStateText}>
@@ -105,9 +93,9 @@ export function SearchScreen({ navigation }: any) {
         ) : (
           <View style={styles.resultsContainer}>
             <Text style={styles.resultsTitle}>
-              {filteredRecipes.length} resultado{filteredRecipes.length !== 1 ? 's' : ''}
+              {recipes.length} resultado{recipes.length !== 1 ? 's' : ''}
             </Text>
-            {filteredRecipes.map((recipe) => (
+            {recipes.map((recipe) => (
               <TouchableOpacity
                 key={recipe.id}
                 style={styles.recipeItem}
@@ -118,7 +106,10 @@ export function SearchScreen({ navigation }: any) {
                 <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
                 <View style={styles.recipeInfo}>
                   <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                  <Text style={styles.recipeCategory}>{recipe.category}</Text>
+                  <View style={styles.metaInfo}>
+                    <Text style={styles.recipeCategory}>{recipe.category}</Text>
+                    <Text style={styles.recipeArea}> • {recipe.area}</Text>
+                  </View>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#ADB5BD" />
               </TouchableOpacity>
@@ -167,6 +158,16 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 100,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#6C757D',
   },
   emptyState: {
     alignItems: 'center',
@@ -224,7 +225,16 @@ const styles = StyleSheet.create({
     color: '#212529',
     marginBottom: 4,
   },
+  metaInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   recipeCategory: {
+    fontSize: 14,
+    color: '#0891b2',
+    fontWeight: '500',
+  },
+  recipeArea: {
     fontSize: 14,
     color: '#6C757D',
   },

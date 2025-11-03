@@ -1,5 +1,5 @@
 // src/screens/Home/RecipeDetailScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,34 +10,27 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Recipe } from '../../services/edamam.service';
+import { useFavorites } from '../../context/FavoritesContext';
 
 export function RecipeDetailScreen({ route, navigation }: any) {
-  const { recipe } = route.params;
-  const [isFavorite, setIsFavorite] = useState(recipe.isFavorite || false);
+  const { recipe } = route.params as { recipe: Recipe };
+  const { toggleFavorite, isFavorite: checkIsFavorite } = useFavorites();
+  const [isFav, setIsFav] = useState(false);
 
-  const ingredients = [
-    '2 tomates grandes',
-    '1 pepino',
-    '2 pimientos verdes',
-    '1 cebolla roja',
-    '2 dientes de ajo',
-    'Jugo de 2 limones',
-    '3 cucharadas de aceite de oliva',
-    'Sal y pimienta al gusto',
-    '2 panes pita tostados',
-    'Perejil fresco',
-  ];
+  useEffect(() => {
+    setIsFav(checkIsFavorite(recipe.id));
+  }, [recipe.id]);
 
-  const steps = [
-    'Corta todos los vegetales en cubos pequeños',
-    'Mezcla los vegetales en un tazón grande',
-    'Prepara el aderezo con limón, aceite de oliva, ajo picado, sal y pimienta',
-    'Vierte el aderezo sobre los vegetales y mezcla bien',
-    'Deja reposar en el refrigerador por 15 minutos',
-    'Antes de servir, agrega el pan pita tostado y cortado en trozos',
-    'Decora con perejil fresco picado',
-    'Sirve inmediatamente y disfruta',
-  ];
+  const handleToggleFavorite = async () => {
+    await toggleFavorite(recipe);
+    setIsFav(!isFav);
+  };
+
+  // Convertir instrucciones en pasos (Edamam da lista de ingredientes como instrucciones)
+  const steps = recipe.instructions
+    .split('\n')
+    .filter(step => step.trim() !== '');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,12 +43,12 @@ export function RecipeDetailScreen({ route, navigation }: any) {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.favoriteButton}
-          onPress={() => setIsFavorite(!isFavorite)}
+          onPress={handleToggleFavorite}
         >
           <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
+            name={isFav ? 'heart' : 'heart-outline'}
             size={24}
-            color={isFavorite ? '#FF6B6B' : '#212529'}
+            color={isFav ? '#FF6B6B' : '#212529'}
           />
         </TouchableOpacity>
       </View>
@@ -68,25 +61,29 @@ export function RecipeDetailScreen({ route, navigation }: any) {
 
           <View style={styles.metadataContainer}>
             <View style={styles.metadataItem}>
-              <Ionicons name="time-outline" size={20} color="#6C757D" />
-              <Text style={styles.metadataText}>30 min</Text>
+              <Ionicons name="restaurant-outline" size={20} color="#6C757D" />
+              <Text style={styles.metadataText}>{recipe.category}</Text>
             </View>
             <View style={styles.metadataItem}>
-              <Ionicons name="people-outline" size={20} color="#6C757D" />
-              <Text style={styles.metadataText}>4 porciones</Text>
+              <Ionicons name="globe-outline" size={20} color="#6C757D" />
+              <Text style={styles.metadataText}>{recipe.area}</Text>
             </View>
-            <View style={styles.metadataItem}>
-              <Ionicons name="flame-outline" size={20} color="#6C757D" />
-              <Text style={styles.metadataText}>250 kcal</Text>
-            </View>
+            {recipe.tags && recipe.tags.length > 0 && (
+              <View style={styles.metadataItem}>
+                <Ionicons name="pricetag-outline" size={20} color="#6C757D" />
+                <Text style={styles.metadataText}>{recipe.tags[0]}</Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Ingredientes</Text>
-            {ingredients.map((ingredient, index) => (
+            {recipe.ingredients.map((ingredient, index) => (
               <View key={index} style={styles.ingredientItem}>
                 <View style={styles.bullet} />
-                <Text style={styles.ingredientText}>{ingredient}</Text>
+                <Text style={styles.ingredientText}>
+                  {ingredient.measure} {ingredient.name}
+                </Text>
               </View>
             ))}
           </View>
@@ -102,6 +99,16 @@ export function RecipeDetailScreen({ route, navigation }: any) {
               </View>
             ))}
           </View>
+
+          {recipe.video && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Video Tutorial</Text>
+              <TouchableOpacity style={styles.videoButton}>
+                <Ionicons name="logo-youtube" size={24} color="#FF0000" />
+                <Text style={styles.videoButtonText}>Ver en YouTube</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -213,5 +220,21 @@ const styles = StyleSheet.create({
     color: '#495057',
     flex: 1,
     lineHeight: 24,
+  },
+  videoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#DEE2E6',
+  },
+  videoButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#212529',
+    marginLeft: 8,
   },
 });
