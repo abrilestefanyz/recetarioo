@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getRandomRecipes, Recipe } from '../../services/edamam.service';
+import { getRandomRecipes, Recipe } from '../../services/themealdb.service';
 import { useFavorites } from '../../context/FavoritesContext';
 
 export function HomeScreen({ navigation }: any) {
@@ -68,7 +68,7 @@ export function HomeScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Recetas</Text>
+        <Text style={styles.headerTitle}>Recipes</Text>
         <TouchableOpacity onPress={loadRecipes}>
           <Ionicons name="refresh" size={24} color="#0891b2" />
         </TouchableOpacity>
@@ -77,7 +77,7 @@ export function HomeScreen({ navigation }: any) {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0891b2" />
-          <Text style={styles.loadingText}>Cargando recetas...</Text>
+          <Text style={styles.loadingText}>Loading recipes...</Text>
         </View>
       ) : (
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>

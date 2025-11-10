@@ -8,9 +8,10 @@ import {
   Image,
   TouchableOpacity,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Recipe } from '../../services/edamam.service';
+import { Recipe } from '../../services/themealdb.service';
 import { useFavorites } from '../../context/FavoritesContext';
 
 export function RecipeDetailScreen({ route, navigation }: any) {
@@ -27,10 +28,16 @@ export function RecipeDetailScreen({ route, navigation }: any) {
     setIsFav(!isFav);
   };
 
-  // Convertir instrucciones en pasos (Edamam da lista de ingredientes como instrucciones)
+  const openVideo = () => {
+    if (recipe.video) {
+      Linking.openURL(recipe.video);
+    }
+  };
+
   const steps = recipe.instructions
     .split('\n')
-    .filter(step => step.trim() !== '');
+    .filter(step => step.trim() !== '')
+    .map(step => step.replace(/^STEP \d+/i, '').trim());
 
   return (
     <SafeAreaView style={styles.container}>
@@ -77,7 +84,7 @@ export function RecipeDetailScreen({ route, navigation }: any) {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ingredientes</Text>
+            <Text style={styles.sectionTitle}>Ingredients</Text>
             {recipe.ingredients.map((ingredient, index) => (
               <View key={index} style={styles.ingredientItem}>
                 <View style={styles.bullet} />
@@ -89,7 +96,7 @@ export function RecipeDetailScreen({ route, navigation }: any) {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Preparación</Text>
+            <Text style={styles.sectionTitle}>Instructions</Text>
             {steps.map((step, index) => (
               <View key={index} style={styles.stepItem}>
                 <View style={styles.stepNumber}>
@@ -103,9 +110,9 @@ export function RecipeDetailScreen({ route, navigation }: any) {
           {recipe.video && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Video Tutorial</Text>
-              <TouchableOpacity style={styles.videoButton}>
+              <TouchableOpacity style={styles.videoButton} onPress={openVideo}>
                 <Ionicons name="logo-youtube" size={24} color="#FF0000" />
-                <Text style={styles.videoButtonText}>Ver en YouTube</Text>
+                <Text style={styles.videoButtonText}>Watch on YouTube</Text>
               </TouchableOpacity>
             </View>
           )}

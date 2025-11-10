@@ -1,6 +1,6 @@
 // src/context/FavoritesContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Recipe } from '../services/edamam.service';
+import { Recipe } from '../services/themealdb.service';
 import * as FavoritesService from '../services/favorites.service';
 
 interface FavoritesContextType {
@@ -17,7 +17,6 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
 
-  // Cargar favoritos al iniciar
   useEffect(() => {
     loadFavorites();
   }, []);
@@ -43,10 +42,8 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const isNowFavorite = await FavoritesService.toggleFavorite(recipe);
     
     if (isNowFavorite) {
-      // Se agregó a favoritos
       setFavorites([...favorites, recipe]);
     } else {
-      // Se quitó de favoritos
       setFavorites(favorites.filter(fav => fav.id !== recipe.id));
     }
   };
@@ -71,7 +68,6 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 };
 
-// Hook personalizado para usar el contexto
 export const useFavorites = () => {
   const context = useContext(FavoritesContext);
   if (context === undefined) {

@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { searchRecipesByName, Recipe } from '../../services/edamam.service';
+import { searchRecipesByName, Recipe } from '../../services/themealdb.service';
 
 export function SearchScreen({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,14 +45,14 @@ export function SearchScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Buscar</Text>
+        <Text style={styles.headerTitle}>Search</Text>
       </View>
 
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color="#6C757D" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar recetas..."
+          placeholder="Search recipes..."
           value={searchQuery}
           onChangeText={handleSearch}
           placeholderTextColor="#ADB5BD"
@@ -68,32 +68,32 @@ export function SearchScreen({ navigation }: any) {
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0891b2" />
-            <Text style={styles.loadingText}>Buscando recetas...</Text>
+            <Text style={styles.loadingText}>Searching recipes...</Text>
           </View>
         ) : !hasSearched ? (
           <View style={styles.emptyState}>
             <Ionicons name="search" size={64} color="#DEE2E6" />
             <Text style={styles.emptyStateText}>
-              Busca tu receta favorita
+              Search your favorite recipe
             </Text>
             <Text style={styles.emptyStateSubtext}>
-              Prueba: pollo, pasta, tacos, arroz...
+              Try: chicken, pasta, beef, fish...
             </Text>
           </View>
         ) : recipes.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="sad-outline" size={64} color="#DEE2E6" />
             <Text style={styles.emptyStateText}>
-              No se encontraron resultados
+              No results found
             </Text>
             <Text style={styles.emptyStateSubtext}>
-              Intenta con otro término de búsqueda
+              Try another search term
             </Text>
           </View>
         ) : (
           <View style={styles.resultsContainer}>
             <Text style={styles.resultsTitle}>
-              {recipes.length} resultado{recipes.length !== 1 ? 's' : ''}
+              {recipes.length} result{recipes.length !== 1 ? 's' : ''}
             </Text>
             {recipes.map((recipe) => (
               <TouchableOpacity

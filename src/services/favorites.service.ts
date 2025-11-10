@@ -1,10 +1,9 @@
 // src/services/favorites.service.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Recipe } from './edamam.service';
+import { Recipe } from './themealdb.service';
 
 const FAVORITES_KEY = '@recetario_favorites';
 
-// Obtener todos los favoritos
 export const getFavorites = async (): Promise<Recipe[]> => {
   try {
     const favoritesJson = await AsyncStorage.getItem(FAVORITES_KEY);
@@ -18,18 +17,14 @@ export const getFavorites = async (): Promise<Recipe[]> => {
   }
 };
 
-// Agregar una receta a favoritos
 export const addFavorite = async (recipe: Recipe): Promise<boolean> => {
   try {
     const favorites = await getFavorites();
-    
-    // Verificar si ya existe
     const exists = favorites.some(fav => fav.id === recipe.id);
     if (exists) {
-      return false; // Ya está en favoritos
+      return false;
     }
     
-    // Agregar la nueva receta
     favorites.push(recipe);
     await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
     return true;
@@ -39,7 +34,6 @@ export const addFavorite = async (recipe: Recipe): Promise<boolean> => {
   }
 };
 
-// Eliminar una receta de favoritos
 export const removeFavorite = async (recipeId: string): Promise<boolean> => {
   try {
     const favorites = await getFavorites();
@@ -52,7 +46,6 @@ export const removeFavorite = async (recipeId: string): Promise<boolean> => {
   }
 };
 
-// Verificar si una receta está en favoritos
 export const isFavorite = async (recipeId: string): Promise<boolean> => {
   try {
     const favorites = await getFavorites();
@@ -63,17 +56,16 @@ export const isFavorite = async (recipeId: string): Promise<boolean> => {
   }
 };
 
-// Alternar favorito (agregar o quitar)
 export const toggleFavorite = async (recipe: Recipe): Promise<boolean> => {
   try {
     const isCurrentlyFavorite = await isFavorite(recipe.id);
     
     if (isCurrentlyFavorite) {
       await removeFavorite(recipe.id);
-      return false; // Ahora NO es favorito
+      return false;
     } else {
       await addFavorite(recipe);
-      return true; // Ahora SÍ es favorito
+      return true;
     }
   } catch (error) {
     console.error('Error toggling favorite:', error);

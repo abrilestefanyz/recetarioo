@@ -9,16 +9,16 @@
 
 ## 2. Descripción del Proyecto
 
-Resetario es una aplicación móvil desarrollada con React Native, Expo y TypeScript que permite a los usuarios explorar, buscar y gestionar recetas de cocina mediante una interfaz intuitiva. La aplicación integra la API de Edamam para obtener recetas reales y cuenta con un sistema de favoritos persistente usando AsyncStorage.
+Resetario es una aplicación móvil desarrollada con React Native, Expo y TypeScript que permite a los usuarios explorar, buscar y gestionar recetas de cocina mediante una interfaz intuitiva. La aplicación integra la API de TheMealDB para obtener recetas reales y cuenta con un sistema de favoritos persistente usando AsyncStorage.
 
 ### Características Principales:
 
 - 📱 **Exploración de Recetas:** Lista de recetas aleatorias con información detallada
 - 🔍 **Búsqueda de Recetas:** Búsqueda en tiempo real por nombre
 - ❤️ **Sistema de Favoritos:** Guarda tus recetas favoritas localmente
-- 📋 **Detalles Completos:** Vista detallada con ingredientes, instrucciones y nutrición
+- 📋 **Detalles Completos:** Vista detallada con ingredientes, instrucciones, categoría y área
 - 🎨 **Interfaz Moderna:** Diseño limpio con navegación por pestañas
-- 🌐 **API Externa:** Integración con Edamam API para recetas reales
+- 🌐 **API Externa:** Integración con TheMealDB API para recetas reales
 
 ### Funcionalidades Implementadas:
 
@@ -27,7 +27,7 @@ Resetario es una aplicación móvil desarrollada con React Native, Expo y TypeSc
 - Búsqueda de recetas en tiempo real
 - Sistema de favoritos con persistencia local
 - Context API para gestión de estado global
-- Integración con API Edamam
+- Integración con TheMealDB API
 
 ## 3. Tecnologías y Versiones Utilizadas
 
@@ -95,7 +95,7 @@ recetarioo/
     ├── context/                     # Context API para estado global
     │   └── FavoritesContext.tsx     # Contexto de favoritos
     ├── navigations/                 # Configuración de navegación
-    │   ├── BottomTabNavigation.tsx  # Navegación por pestañas
+    │   ├── BottomTabNavigation.tsx # Navegación por pestañas
     │   └── stacks/                  # Stack navigators por pestaña
     │       ├── HomeNavigation.tsx
     │       ├── SearchNavigation.tsx
@@ -113,7 +113,7 @@ recetarioo/
     │       ├── FavoritesScreen.tsx   # Pantalla de favoritos
     │       └── index.ts
     ├── services/                     # Servicios y APIs
-    │   ├── edamam.service.ts         # Servicio de API Edamam
+    │   ├── themealdb.service.ts      # Servicio de API TheMealDB
     │   ├── favorites.service.ts      # Servicio de favoritos (AsyncStorage)
     │   └── index.ts
     └── utils/                        # Utilidades y constantes
@@ -131,7 +131,7 @@ recetarioo/
 - **FavoritesScreen.tsx:** Pantalla con recetas favoritas
 - **RecipeDetailScreen.tsx:** Pantalla de detalles de receta
 - **FavoritesContext.tsx:** Context API para gestión de favoritos
-- **edamam.service.ts:** Servicio para consumir API de Edamam
+- **themealdb.service.ts:** Servicio para consumir API de TheMealDB
 - **favorites.service.ts:** Servicio para persistencia local de favoritos
 
 ## 5. Instalación y Configuración
@@ -157,7 +157,7 @@ npm install
 | `react-native-screens` | ~4.16.0 | Optimización de rendimiento para transiciones nativas |
 | `react-native-safe-area-context` | ~5.6.0 | Manejo de áreas seguras (notch, barras de estado) |
 | `@react-native-async-storage/async-storage` | 2.2.0 | Persistencia local para favoritos |
-| `axios` | ^1.12.2 | Cliente HTTP para consumir API de Edamam |
+| `axios` | ^1.12.2 | Cliente HTTP para consumir API de TheMealDB |
 | `@expo/vector-icons` | ^15.0.2 | Iconos para la interfaz de usuario |
 | `expo-status-bar` | ~3.0.8 | Control de apariencia de barra de estado |
 | `typescript` | ~5.9.2 | TypeScript para tipado estático |
@@ -167,16 +167,11 @@ npm install
 npm list --depth=0
 ```
 
-### Configuración de API Edamam:
+### Configuración de API TheMealDB:
 
-Para usar la API de Edamam, necesitas configurar tus credenciales en `src/services/edamam.service.ts`:
+TheMealDB es una API gratuita y de código abierto que no requiere autenticación ni credenciales. La aplicación está lista para usar sin configuración adicional.
 
-```typescript
-const APP_ID = 'tu-app-id';
-const APP_KEY = 'tu-app-key';
-```
-
-Puedes obtener tus credenciales en: https://developer.edamam.com/
+Puedes obtener más información sobre la API en: https://www.themealdb.com/api.php
 
 ## 6. Ejecución de la Aplicación
 
@@ -246,8 +241,9 @@ La aplicación utiliza una combinación de **Bottom Tab Navigation** y **Stack N
 ### Pantallas Implementadas:
 
 1. **HomeScreen:** 
-   - Muestra lista de recetas aleatorias desde Edamam API
+   - Muestra lista de recetas aleatorias desde TheMealDB API
    - Botón de favoritos en cada tarjeta
+   - Botón de actualizar para cargar nuevas recetas
    - Navegación a detalles al tocar la receta
 
 2. **SearchScreen:** 
@@ -262,23 +258,26 @@ La aplicación utiliza una combinación de **Bottom Tab Navigation** y **Stack N
 
 4. **RecipeDetailScreen:** 
    - Información completa de la receta
-   - Ingredientes con medidas
-   - Instrucciones de preparación
-   - Información nutricional (calorías, tiempo, porciones)
+   - Ingredientes con medidas exactas
+   - Instrucciones de preparación paso a paso
+   - Categoría y área de origen de la receta
+   - Enlace a video de YouTube (si está disponible)
+   - Tags y fuente de la receta
    - Botón para agregar/quitar de favoritos
 
-![Pantalla1](screenshots/Pantalla1.jpeg)
+![Pantalla1](screenshots/pantalla1.jpg)
 
-![Pantalla2](screenshots/Pantalla2.jpeg)
+![Pantalla2](screenshots/pantalla2.jpg)
 
 ## 8. Funcionalidades de la Aplicación
 
 ### Gestión de Recetas:
 
-- **Obtención de Recetas:** Integración con API Edamam para recetas reales
+- **Obtención de Recetas:** Integración con TheMealDB API para recetas reales
 - **Búsqueda:** Búsqueda en tiempo real por nombre de receta
 - **Favoritos:** Sistema completo de favoritos con persistencia local
-- **Detalles:** Vista completa con ingredientes, instrucciones y nutrición
+- **Detalles:** Vista completa con ingredientes, instrucciones, categoría y área
+- **Videos:** Enlaces a videos de YouTube para algunas recetas
 
 ### Context API:
 
@@ -288,18 +287,18 @@ La aplicación utiliza una combinación de **Bottom Tab Navigation** y **Stack N
 
 ### Servicios:
 
-- **edamam.service.ts:** 
-  - `searchRecipes()`: Búsqueda de recetas
-  - `getRandomRecipes()`: Recetas aleatorias
-  - `searchRecipesByName()`: Búsqueda por nombre
-  - `getRecipesByCategory()`: Filtrar por categoría
-  - `getRecipesByCuisine()`: Filtrar por tipo de cocina
+- **themealdb.service.ts:** 
+  - `getRandomRecipes(count)`: Obtiene recetas aleatorias (por defecto 10)
+  - `searchRecipesByName(name)`: Búsqueda de recetas por nombre
+  - `getRecipeById(id)`: Obtiene una receta específica por su ID
+  - `searchRecipes(name)`: Alias de searchRecipesByName
 
 - **favorites.service.ts:**
   - `getFavorites()`: Obtener favoritos guardados
-  - `addFavorite()`: Agregar receta a favoritos
-  - `removeFavorite()`: Eliminar receta de favoritos
-  - `toggleFavorite()`: Alternar estado de favorito
+  - `addFavorite(recipe)`: Agregar receta a favoritos
+  - `removeFavorite(recipeId)`: Eliminar receta de favoritos
+  - `isFavorite(recipeId)`: Verificar si una receta es favorita
+  - `toggleFavorite(recipe)`: Alternar estado de favorito
 
 ## 9. Ejecución en Android/iOS (Expo / Emulador / Físico)
 
@@ -375,20 +374,23 @@ npx tsc --noEmit
 - [Documentación oficial de Expo](https://docs.expo.dev/)
 - [React Navigation Docs](https://reactnavigation.org/docs/getting-started)
 - [TypeScript para React Native](https://reactnative.dev/docs/typescript)
-- [Edamam API Documentation](https://developer.edamam.com/edamam-docs-recipe-api)
+- [TheMealDB API Documentation](https://www.themealdb.com/api.php)
 - [AsyncStorage Documentation](https://react-native-async-storage.github.io/async-storage/)
 
 ## 11. Desarrollo y Extensión
 
 ### Próximas Funcionalidades Sugeridas:
 
-- **Filtros Avanzados:** Por categoría, tipo de cocina, tiempo de preparación
+- **Filtros Avanzados:** Por categoría, área de origen, ingredientes
+- **Búsqueda por Ingrediente:** Buscar recetas que contengan ingredientes específicos
 - **Listas de Compras:** Generar lista de ingredientes desde recetas
 - **Compartir Recetas:** Compartir recetas con otros usuarios
 - **Modo Offline:** Cache de recetas para uso sin conexión
 - **Notificaciones:** Recordatorios de recetas favoritas
-- **Valoraciones:** Sistema de calificación de recetas
+- **Reproductor de Video:** Integrar reproductor de YouTube en la app
 - **Historial:** Ver recetas recientemente consultadas
+- **Búsqueda por Categoría:** Explorar recetas por categorías (Desert, Beef, Seafood, etc.)
+- **Búsqueda por Área:** Explorar recetas por región (Italian, Mexican, Indian, etc.)
 
 ### Estructura para Nuevas Pantallas:
 
@@ -424,6 +426,6 @@ const styles = StyleSheet.create({
 
 ---
 
-**Desarrollado por:** Abril Estefany Millan Zavaleta  
+**Desarrollado por:** Abril Estefany Millan Zavaleta
 **Última actualización:** Noviembre 03, 2025  
 **Versión:** 1.0.0
